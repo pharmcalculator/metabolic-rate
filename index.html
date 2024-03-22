@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>In Vitro Drug Metabolic Rate Calculator</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        
+        h1 {
+            font-size: 28px;
+        }
+        
+        label {
+            font-size: 22px;
+        }
+        
+        input[type="number"], select, textarea {
+            font-size: 20px;
+        }
+        
+        #result {
+            font-size: 22px;
+            background-color: lightblue;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        .metabolic-rate {
+            margin-bottom: 10px;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid black;
+        }
+
+        th {
+            background-color: lightgray;
+        }
+    </style>
+    <script type="text/javascript">
+        function addRow() {
+            var table = document.getElementById("concentrationTable");
+            var newRow = table.insertRow();
+            var substrateCell = newRow.insertCell();
+            var metaboliteCell = newRow.insertCell();
+
+            substrateCell.innerHTML = '<input type="number" step="any" style="font-size: 20px;">';
+            metaboliteCell.innerHTML = '<input type="number" step="any" style="font-size: 20px;">';
+        }
+
+        function calculate() {
+            var enzymeConcentration = parseFloat(document.getElementById("enzymeConcentration").value);
+            var incubationTime = parseFloat(document.getElementById("incubationTime").value);
+            var metaboliteUnit = document.getElementById("metaboliteUnit").value;
+
+            var table = document.getElementById("concentrationTable");
+            var rows = table.getElementsByTagName("tr");
+
+            var resultContainer = document.getElementById("result");
+            resultContainer.innerHTML = ""; // Clear previous results
+
+            for (var i = 1; i < rows.length; i++) {
+                var substrateConcentration = parseFloat(rows[i].cells[0].getElementsByTagName("input")[0].value);
+                var metaboliteConcentration = parseFloat(rows[i].cells[1].getElementsByTagName("input")[0].value);
+
+                if (!isNaN(substrateConcentration) && !isNaN(metaboliteConcentration)) {
+                    var metabolicRate = (metaboliteConcentration) / (incubationTime * enzymeConcentration);
+                    var metabolicRateUnit = "nmol/min/mg protein"; // Default unit
+
+                    if (metaboliteUnit === "micromol/mL") {
+                        metabolicRate *= 1000; // Convert to nanomo/mLl
+                    }
+
+                    var roundedMetabolicRate = metabolicRate.toFixed(2);
+
+                    var result = document.createElement("div");
+                    result.className = "metabolic-rate";
+
+                    var concentrationPair = document.createElement("div");
+                    concentrationPair.className = "concentration-pair";
+
+                    var substrateElement = document.createElement("div");
+                    substrateElement.innerHTML = "Substrate Concentration: " + substrateConcentration;
+
+                    var metaboliteElement = document.createElement("div");
+                    metaboliteElement.innerHTML = "Metabolite Concentration: " + metaboliteConcentration + " " + metaboliteUnit;
+
+                    concentrationPair.appendChild(substrateElement);
+                    concentrationPair.appendChild(metaboliteElement);
+
+                    result.appendChild(concentrationPair);
+
+                    var metabolicRateElement = document.createElement("div");
+                    metabolicRateElement.innerHTML = "Metabolic Rate: " + roundedMetabolicRate + " " + metabolicRateUnit;
+
+                    result.appendChild(metabolicRateElement);
+
+                    resultContainer.appendChild(result);
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <h1>In Vitro Drug Metabolic Rate Calculator</h1>
+
+        <label for="enzymeConcentration">Enzyme Concentration (mg protein/mL):</label>
+        <input type="number" id="enzymeConcentration" step="any" style="font-size: 20px;" required><br><br>
+
+        <label for="incubationTime">Incubation Time (min):</label>
+        <input type="number" id="incubationTime" step="any" style="font-size: 20px;" required><br><br>
+
+        <table id="concentrationTable">
+            <tr>
+                <th>Substrate Concentration</th>
+                <th>Metabolite Concentration</th>
+            </tr>
+            <tr>
+                <td><input type="number" step="any" style="font-size: 20px;"></td>
+                <td><input type="number" step="any" style="font-size: 20px;"></td>
+            </tr>
+        </table>
+
+        <button onclick="addRow()" style="font-size: 20px;">Add Concentration</button><br><br>
+
+        <label for="metaboliteUnit">Metabolite Concentration Unit:</label>
+        <select id="metaboliteUnit" style="font-size: 20px;">
+            <option value="micromol/mL">umol/mL</option>
+            <option value="nanomol/mL">nmol/mL</option>
+        </select><br><br>
+
+        <button onclick="calculate()" style="font-size: 20px;">Calculate</button><br><br>
+
+        <div id="result"></div>
+    </div>
+</body>
+</html>
